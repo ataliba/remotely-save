@@ -2804,9 +2804,11 @@ export class RemotelySaveSettingTab extends PluginSettingTab {
       });
 
     new Setting(remoteLockDiv)
-      .setName("WebDAV base URL")
+      .setName("WebDAV base URL (opcional)")
       .setDesc(
-        "Ex: https://nc.cybernetus.com/remote.php/dav/files/ataliba"
+        "Deixe em branco pra reusar o WebDAV configurado acima (mesma conta " +
+          "Nextcloud do sync). Só preenche se o lock ficar num servidor/conta " +
+          "diferente. Ex: https://nc.cybernetus.com/remote.php/dav/files/ataliba"
       )
       .addText((text) => {
         text
@@ -2817,7 +2819,8 @@ export class RemotelySaveSettingTab extends PluginSettingTab {
       });
 
     new Setting(remoteLockDiv)
-      .setName("Usuário")
+      .setName("Usuário (opcional)")
+      .setDesc("Deixe em branco pra reusar o usuário do WebDAV acima.")
       .addText((text) => {
         text
           .setValue(this.plugin.settings.remoteLock?.username ?? "")
@@ -2827,7 +2830,8 @@ export class RemotelySaveSettingTab extends PluginSettingTab {
       });
 
     new Setting(remoteLockDiv)
-      .setName("Senha / app password")
+      .setName("Senha / app password (opcional)")
+      .setDesc("Deixe em branco pra reusar a senha do WebDAV acima.")
       .addText((text) => {
         text.inputEl.type = "password";
         text

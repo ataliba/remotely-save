@@ -485,7 +485,16 @@ export default class RemotelySavePlugin extends Plugin {
       return;
     }
 
-    if (await isRemoteLocked(this.settings.remoteLock)) {
+    const remoteLockCfg = this.settings.remoteLock;
+    const effectiveRemoteLock = remoteLockCfg?.enabled
+      ? {
+          ...remoteLockCfg,
+          baseUrl: remoteLockCfg.baseUrl || this.settings.webdav.address,
+          username: remoteLockCfg.username || this.settings.webdav.username,
+          password: remoteLockCfg.password || this.settings.webdav.password,
+        }
+      : remoteLockCfg;
+    if (await isRemoteLocked(effectiveRemoteLock)) {
       getNotice(
         triggerSource,
         "Remote lock ativo (pipeline em andamento) — sync adiado pro próximo ciclo."

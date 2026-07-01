@@ -152,13 +152,18 @@ export interface ProfilerConfig {
  * plugin) over the same WebDAV connection used for sync, at a path outside
  * the synced vault tree — e.g. a sibling Nextcloud folder — so reading it
  * never races with the vault's own bisync.
+ *
+ * baseUrl/username/password are optional: leave blank to reuse the main
+ * `settings.webdav` credentials (the common case — same Nextcloud account
+ * for sync and for the lock file). Only fill them in to point the lock
+ * check at a different server/account.
  */
 export interface RemoteLockConfig {
   enabled: boolean;
   /** WebDAV base, ex: https://nc.cybernetus.com/remote.php/dav/files/ataliba */
-  baseUrl: string;
-  username: string;
-  password: string;
+  baseUrl?: string;
+  username?: string;
+  password?: string;
   /** path do arquivo de lock, ex: /mentedoataliba-lock/status.json */
   lockFilePath: string;
 }
