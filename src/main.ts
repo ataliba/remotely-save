@@ -398,7 +398,7 @@ export default class RemotelySavePlugin extends Plugin {
     const errNotifyFunc = async (s: SyncTriggerSourceType, error: Error) => {
       console.error(error);
       if (error instanceof AggregateError) {
-        for (const e of error.errors) {
+        for (const e of error) {
           getNotice(s, e.message, 10 * 1000);
         }
       } else {

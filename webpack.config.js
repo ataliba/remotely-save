@@ -30,6 +30,12 @@ module.exports = {
     libraryTarget: "commonjs",
   },
   plugins: [
+    // newer transitive deps (e.g. clean-stack) import "node:url" instead of
+    // "url" — webpack treats the node: scheme specially before consulting
+    // resolve.fallback, so rewrite it to the bare specifier first.
+    new webpack.NormalModuleReplacementPlugin(/^node:/, (resource) => {
+      resource.request = resource.request.replace(/^node:/, "");
+    }),
     new webpack.DefinePlugin({
       "global.DEFAULT_DROPBOX_APP_KEY": `"${DEFAULT_DROPBOX_APP_KEY}"`,
       "global.DEFAULT_ONEDRIVE_CLIENT_ID": `"${DEFAULT_ONEDRIVE_CLIENT_ID}"`,
@@ -121,7 +127,7 @@ module.exports = {
       // timers: require.resolve("timers-browserify"),
       tls: false,
       // tty: require.resolve("tty-browserify"),
-      url: require.resolve("url/"),
+      url: require.resolve("./url-shim.js"),
       // util: require.resolve("util"),
       // vm: require.resolve("vm-browserify"),
       vm: false,

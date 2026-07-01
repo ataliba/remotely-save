@@ -68,6 +68,7 @@ import {
   stringToFragment,
 } from "./misc";
 import { DEFAULT_PROFILER_CONFIG } from "./profiler";
+import { DEFAULT_REMOTE_LOCK_CONFIG } from "./remoteLock";
 
 class PasswordModal extends Modal {
   plugin: RemotelySavePlugin;
@@ -2766,6 +2767,86 @@ export class RemotelySaveSettingTab extends PluginSettingTab {
       azureBlobStorageAllowedToUsedDiv,
       azureBlobStorageNotShowUpHintSetting
     );
+
+    //////////////////////////////////////////////////
+    // below for remote lock
+    //////////////////////////////////////////////////
+
+    const remoteLockDiv = containerEl.createEl("div");
+    remoteLockDiv.createEl("h2", { text: "Remote Lock" });
+    remoteLockDiv.createEl("p", {
+      text:
+        "Antes de cada sync, checa um arquivo JSON (lido via WebDAV, fora " +
+        "da árvore sincronizada) escrito por um processo externo (ex: " +
+        "pipeline). Se locked != 0, pula o ciclo. Este plugin nunca escreve " +
+        "esse arquivo, só lê.",
+    });
+
+    const updateRemoteLock = async (
+      patch: Partial<typeof DEFAULT_REMOTE_LOCK_CONFIG>
+    ) => {
+      this.plugin.settings.remoteLock = {
+        ...(this.plugin.settings.remoteLock ?? DEFAULT_REMOTE_LOCK_CONFIG),
+        ...patch,
+      };
+      await this.plugin.saveSettings();
+    };
+
+    new Setting(remoteLockDiv)
+      .setName("Habilitar")
+      .setDesc("Ativa o check de lock remoto antes de sincronizar.")
+      .addToggle((toggle) => {
+        toggle
+          .setValue(this.plugin.settings.remoteLock?.enabled ?? false)
+          .onChange(async (val) => {
+            await updateRemoteLock({ enabled: val });
+          });
+      });
+
+    new Setting(remoteLockDiv)
+      .setName("WebDAV base URL")
+      .setDesc(
+        "Ex: https://nc.cybernetus.com/remote.php/dav/files/ataliba"
+      )
+      .addText((text) => {
+        text
+          .setValue(this.plugin.settings.remoteLock?.baseUrl ?? "")
+          .onChange(async (val) => {
+            await updateRemoteLock({ baseUrl: val.trim() });
+          });
+      });
+
+    new Setting(remoteLockDiv)
+      .setName("Usuário")
+      .addText((text) => {
+        text
+          .setValue(this.plugin.settings.remoteLock?.username ?? "")
+          .onChange(async (val) => {
+            await updateRemoteLock({ username: val.trim() });
+          });
+      });
+
+    new Setting(remoteLockDiv)
+      .setName("Senha / app password")
+      .addText((text) => {
+        text.inputEl.type = "password";
+        text
+          .setValue(this.plugin.settings.remoteLock?.password ?? "")
+          .onChange(async (val) => {
+            await updateRemoteLock({ password: val });
+          });
+      });
+
+    new Setting(remoteLockDiv)
+      .setName("Caminho do arquivo de lock")
+      .setDesc("Ex: mentedoataliba-lock/status.json")
+      .addText((text) => {
+        text
+          .setValue(this.plugin.settings.remoteLock?.lockFilePath ?? "")
+          .onChange(async (val) => {
+            await updateRemoteLock({ lockFilePath: val.trim() });
+          });
+      });
 
     //////////////////////////////////////////////////
     // below for debug
