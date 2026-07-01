@@ -109,6 +109,7 @@ import {
 } from "./localdb";
 import { changeMobileStatusBar } from "./misc";
 import { DEFAULT_PROFILER_CONFIG, Profiler } from "./profiler";
+import { DEFAULT_REMOTE_LOCK_CONFIG, isRemoteLocked } from "./remoteLock";
 import { RemotelySaveSettingTab } from "./settings";
 import { SyncAlgoV3Modal } from "./syncAlgoV3Notice";
 
@@ -154,6 +155,7 @@ const DEFAULT_SETTINGS: RemotelySavePluginSettings = {
   encryptionMethod: "unknown",
   profiler: DEFAULT_PROFILER_CONFIG,
   pro: DEFAULT_PRO_CONFIG,
+  remoteLock: DEFAULT_REMOTE_LOCK_CONFIG,
 };
 
 interface OAuth2Info {
@@ -480,6 +482,14 @@ export default class RemotelySavePlugin extends Plugin {
       if (this.currSyncMsg !== undefined && this.currSyncMsg !== "") {
         getNotice(triggerSource, this.currSyncMsg);
       }
+      return;
+    }
+
+    if (await isRemoteLocked(this.settings.remoteLock)) {
+      getNotice(
+        triggerSource,
+        "Remote lock ativo (pipeline em andamento) — sync adiado pro próximo ciclo."
+      );
       return;
     }
 

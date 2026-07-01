@@ -145,6 +145,24 @@ export interface ProfilerConfig {
   recordSize?: boolean;
 }
 
+/**
+ * Guards syncRun() against an external process (e.g. a pipeline container
+ * bisyncing the same vault via Nextcloud) that also writes to the vault.
+ * Checked via a small JSON file read (GET only, never written by this
+ * plugin) over the same WebDAV connection used for sync, at a path outside
+ * the synced vault tree — e.g. a sibling Nextcloud folder — so reading it
+ * never races with the vault's own bisync.
+ */
+export interface RemoteLockConfig {
+  enabled: boolean;
+  /** WebDAV base, ex: https://nc.cybernetus.com/remote.php/dav/files/ataliba */
+  baseUrl: string;
+  username: string;
+  password: string;
+  /** path do arquivo de lock, ex: /mentedoataliba-lock/status.json */
+  lockFilePath: string;
+}
+
 export interface RemotelySavePluginSettings {
   s3: S3Config;
   webdav: WebdavConfig;
@@ -191,6 +209,8 @@ export interface RemotelySavePluginSettings {
   profiler?: ProfilerConfig;
 
   pro?: ProConfig;
+
+  remoteLock?: RemoteLockConfig;
 
   /**
    * @deprecated
